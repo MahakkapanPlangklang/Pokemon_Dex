@@ -13,6 +13,7 @@ class PokemonDetailScreen extends StatefulWidget {
 }
 
 class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
+  String? pokemonName;
   String? imageUrl;
   List<String> types = [];
   List<Map<String, dynamic>> stats = [];
@@ -30,6 +31,7 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
+          pokemonName = data['name'].toString().toUpperCase(); // ได้ชื่อโปเกมอน
           types = List<String>.from(data['types'].map((t) => t['type']['name']));
           stats = List<Map<String, dynamic>>.from(
             data['stats'].map((s) => {"name": s['stat']['name'], "value": s['base_stat']}),
@@ -71,18 +73,23 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
                   : Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        Text(
+                          pokemonName ?? "Unknown Pokémon",
+                          style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
+                        SizedBox(height: 20),
                         Image.network(imageUrl!, width: 200, height: 200),
                         SizedBox(height: 20),
                         Text(
                           "Type: ${types.join(", ")}",
-                          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+                          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                         SizedBox(height: 10),
                         Column(
                           children: stats
                               .map((s) => Text(
                                     "${s['name'].toUpperCase()}: ${s['value']}",
-                                    style: GoogleFonts.poppins(fontSize: 16),
+                                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
                                   ))
                               .toList(),
                         ),
