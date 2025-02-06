@@ -25,46 +25,43 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
     fetchPokemonDetail();
   }
 
-  Color getTypeColor(String type) {
-    switch (type.toLowerCase()) {
-      case "fire":
-        return Colors.redAccent;
-      case "water":
-        return Colors.blueAccent;
-      case "grass":
-        return Colors.green;
-      case "electric":
-        return Colors.yellow[700]!;
-      case "ice":
-        return Colors.cyanAccent;
-      case "fighting":
-        return Colors.orange;
-      case "poison":
-        return Colors.purple;
-      case "ground":
-        return Colors.brown;
-      case "flying":
-        return Colors.indigo;
-      case "psychic":
-        return Colors.pinkAccent;
-      case "bug":
-        return Colors.lightGreen;
-      case "rock":
-        return Colors.grey;
-      case "ghost":
-        return Colors.deepPurpleAccent;
-      case "dragon":
-        return Colors.deepPurple;
-      case "dark":
-        return Colors.black87;
-      case "steel":
-        return Colors.blueGrey;
-      case "fairy":
-        return Colors.pink;
-      default:
-        return Colors.grey;
+  Color getStatColor(String stat) {
+    switch (stat) {
+      case "hp": return Colors.redAccent;
+      case "attack": return Colors.orange;
+      case "defense": return Colors.deepOrange;
+      case "special-attack": return Colors.amber;
+      case "special-defense": return Colors.yellow;
+      case "speed": return Colors.deepOrangeAccent;
+      default: return Colors.grey;
     }
   }
+
+  Color getTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case "fire": return Colors.redAccent;
+      case "water": return Colors.blueAccent;
+      case "grass": return Colors.green;
+      case "electric": return Colors.yellow[700]!;
+      case "ice": return Colors.cyanAccent;
+      case "fighting": return Colors.orange;
+      case "poison": return Colors.purple;
+      case "ground": return Colors.brown;
+      case "flying": return Colors.indigo;
+      case "psychic": return Colors.pinkAccent;
+      case "bug": return Colors.lightGreen;
+      case "rock": return Colors.grey;
+      case "ghost": return Colors.deepPurpleAccent;
+      case "dragon": return Colors.deepPurple;
+      case "dark": return Colors.black87;
+      case "steel": return Colors.blueGrey;
+      case "fairy": return Colors.pink;
+      default: return Colors.grey;
+    }
+  }
+
+  int getMinStat(int baseStat) => (baseStat * 2 + 5);
+  int getMaxStat(int baseStat) => (baseStat * 2 + 110);
 
   Future<void> fetchPokemonDetail() async {
     try {
@@ -75,7 +72,12 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
           pokemonName = data['name'].toString().toUpperCase();
           types = List<String>.from(data['types'].map((t) => t['type']['name']));
           stats = List<Map<String, dynamic>>.from(
-            data['stats'].map((s) => {"name": s['stat']['name'], "value": s['base_stat']}),
+            data['stats'].map((s) => {
+                  "name": s['stat']['name'],
+                  "value": s['base_stat'],
+                  "min": getMinStat(s['base_stat']),
+                  "max": getMaxStat(s['base_stat']),
+                }),
           );
           imageUrl = data['sprites']['other']['official-artwork']['front_default'];
           isLoading = false;
@@ -121,7 +123,6 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
                         SizedBox(height: 20),
                         Image.network(imageUrl!, width: 200, height: 200),
                         SizedBox(height: 20),
-
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: types.map((type) {
@@ -129,7 +130,7 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
                               margin: EdgeInsets.symmetric(horizontal: 5),
                               padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
                               decoration: BoxDecoration(
-                                color: getTypeColor(type), 
+                                color: getTypeColor(type),
                                 borderRadius: BorderRadius.circular(15),
                               ),
                               child: Text(
@@ -139,15 +140,60 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
                             );
                           }).toList(),
                         ),
-
+                        SizedBox(height: 20),
+                        Text(
+                          "Base Stats",
+                          style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
                         SizedBox(height: 10),
                         Column(
-                          children: stats
-                              .map((s) => Text(
-                                    "${s['name'].toUpperCase()}: ${s['value']}",
-                                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.white),
-                                  ))
-                              .toList(),
+                          children: stats.map((s) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    width: 90,
+                                    child: Text(
+                                      s['name'].toUpperCase(),
+                                      style: GoogleFonts.poppins(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 30,
+                                    child: Text(
+                                      "${s['value']}",
+                                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 150,
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: LinearProgressIndicator(
+                                        value: s['value'] / 150,
+                                        backgroundColor: Colors.grey[700],
+                                        color: getStatColor(s['name']),
+                                        minHeight: 10,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  SizedBox(
+                                    width: 80,
+                                    child: Text(
+                                      "${s['min']}  ${s['max']}",
+                                      style: GoogleFonts.poppins(fontSize: 14, color: Colors.white),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ],
                     ),
