@@ -25,13 +25,54 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
     fetchPokemonDetail();
   }
 
+  Color getTypeColor(String type) {
+    switch (type.toLowerCase()) {
+      case "fire":
+        return Colors.redAccent;
+      case "water":
+        return Colors.blueAccent;
+      case "grass":
+        return Colors.green;
+      case "electric":
+        return Colors.yellow[700]!;
+      case "ice":
+        return Colors.cyanAccent;
+      case "fighting":
+        return Colors.orange;
+      case "poison":
+        return Colors.purple;
+      case "ground":
+        return Colors.brown;
+      case "flying":
+        return Colors.indigo;
+      case "psychic":
+        return Colors.pinkAccent;
+      case "bug":
+        return Colors.lightGreen;
+      case "rock":
+        return Colors.grey;
+      case "ghost":
+        return Colors.deepPurpleAccent;
+      case "dragon":
+        return Colors.deepPurple;
+      case "dark":
+        return Colors.black87;
+      case "steel":
+        return Colors.blueGrey;
+      case "fairy":
+        return Colors.pink;
+      default:
+        return Colors.grey;
+    }
+  }
+
   Future<void> fetchPokemonDetail() async {
     try {
       final response = await http.get(Uri.parse("https://pokeapi.co/api/v2/pokemon/${widget.pokemonId}"));
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          pokemonName = data['name'].toString().toUpperCase(); 
+          pokemonName = data['name'].toString().toUpperCase();
           types = List<String>.from(data['types'].map((t) => t['type']['name']));
           stats = List<Map<String, dynamic>>.from(
             data['stats'].map((s) => {"name": s['stat']['name'], "value": s['base_stat']}),
@@ -80,10 +121,25 @@ class _PokemonDetailScreenState extends State<PokemonDetailScreen> {
                         SizedBox(height: 20),
                         Image.network(imageUrl!, width: 200, height: 200),
                         SizedBox(height: 20),
-                        Text(
-                          "Type: ${types.join(", ")}",
-                          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: types.map((type) {
+                            return Container(
+                              margin: EdgeInsets.symmetric(horizontal: 5),
+                              padding: EdgeInsets.symmetric(vertical: 6, horizontal: 12),
+                              decoration: BoxDecoration(
+                                color: getTypeColor(type), 
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              child: Text(
+                                type.toUpperCase(),
+                                style: GoogleFonts.poppins(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            );
+                          }).toList(),
                         ),
+
                         SizedBox(height: 10),
                         Column(
                           children: stats
